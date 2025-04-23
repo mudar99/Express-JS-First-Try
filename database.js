@@ -1,18 +1,22 @@
-// database.js
-const mysql2 = require("mysql2");
-const { promisify } = require("util");
-const dotenv = require("dotenv");
+const { Sequelize } = require('sequelize');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-const pool = mysql2.createPool({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-  Promise: global.Promise,
-});
+// Create a Sequelize instance
+const sequelize = new Sequelize(
+  process.env.MYSQL_DATABASE,
+  process.env.MYSQL_USER,
+  process.env.MYSQL_PASSWORD,
+  {
+    host: process.env.MYSQL_HOST,
+    dialect: 'mysql',
+  }
+);
 
-const poolQuery = promisify(pool.query).bind(pool);
+// Test the connection
+sequelize.authenticate()
+  .then(() => console.log('Database connected...'))
+  .catch(err => console.log('Error: ' + err));
 
-module.exports = { poolQuery };
+module.exports = sequelize;
